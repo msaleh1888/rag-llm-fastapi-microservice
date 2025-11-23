@@ -107,6 +107,7 @@ subgraph Query ["Query Pipeline online API"]
 end
 
 V -. writes embeddings .-> V2
+```
 
 ---
 
