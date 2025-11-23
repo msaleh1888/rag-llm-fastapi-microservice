@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.env
+
+# Environments
+venv/
+.env/
+.env.bak/
+
+# ChromaDB vector index
+chroma_db/
+*.chroma
+*.bin
+
+# Data
+data/raw/*
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
