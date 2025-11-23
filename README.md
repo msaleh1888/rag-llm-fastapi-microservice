@@ -65,43 +65,48 @@ rag-llm-fastapi-microservice/
 
 ---
 
-## Architecture Overview
+### 🔎 System Architecture Overview
 
-This project is split into two main flows:
+The system consists of two main pipelines:
 
-1. **Ingestion pipeline** – prepares your documents for retrieval  
-2. **Query pipeline** – answers user questions using Retrieval-Augmented Generation (RAG)
+- **Ingestion Pipeline (offline):**  
+  Processes and embeds raw documents into a persistent ChromaDB store.
+
+- **Query Pipeline (online API):**  
+  Takes user questions, retrieves relevant context using vector search, and generates answers using the Groq LLM.
+
+Below is the full architecture diagram:
 
 ```mermaid
 flowchart LR
-    classDef comp fill=#0f172a,stroke=#0f172a,color=#e5e7eb,stroke-width=1,rx=6,ry=6
-    classDef data fill=#0369a1,stroke=#0f172a,color=#e5e7eb,stroke-width=1,rx=6,ry=6
-    classDef ext fill=#15803d,stroke=#0f172a,color=#e5e7eb,stroke-width=1,rx=6,ry=6
 
-    subgraph Ingestion["Ingestion Pipeline (offline)"]
-        D[data/raw (.txt / .pdf)]:::data
-        S[scripts/ingest.py]:::comp
-        C[rag/chunker.py\nsentence-based chunking]:::comp
-        E[rag/embedder.py\nSentenceTransformers]:::comp
-        V[rag/vectordb.py\nChromaDB (persistent)]:::comp
+classDef comp fill:#0f172a,stroke:#0f172a,color:#e5e7eb,stroke-width:1,rx:6,ry:6;
+classDef data fill:#0369a1,stroke:#0f172a,color:#e5e7eb,stroke-width:1,rx:6,ry:6;
+classDef ext fill:#15803d,stroke:#0f172a,color:#e5e7eb,stroke-width:1,rx:6,ry:6;
 
-        D --> S --> C --> E --> V
-    end
+subgraph Ingestion ["Ingestion Pipeline offline"]
+    D[data/raw files]:::data
+    S[scripts/ingest.py]:::comp
+    C[rag/chunker.py - sentence chunking]:::comp
+    E[rag/embedder.py - SentenceTransformers]:::comp
+    V[rag/vectordb.py - ChromaDB persistent]:::comp
 
-    subgraph Query["Query Pipeline (online API)"]
-        U[(User / Client)]:::ext
-        A[app/main.py\nFastAPI /ask]:::comp
-        R[rag/retriever.py\nEmbeds query + vector search]:::comp
-        G[rag/generator.py\nGrok (xAI) LLM]:::comp
-        V2[(ChromaDB\nchroma_db/)]:::data
+    D --> S --> C --> E --> V
+end
 
-        U --> A --> R --> V2
-        R --> G --> A
-        A --> U
-    end
+subgraph Query ["Query Pipeline online API"]
+    U[(User / Client)]:::ext
+    A[app/main.py - FastAPI ask]:::comp
+    R[rag/retriever.py - embeds query + search]:::comp
+    G[rag/generator.py - Groq LLM]:::comp
+    V2[(ChromaDB chroma_db)]:::data
 
-    V -. writes embeddings .-> V2
-```
+    U --> A --> R --> V2
+    R --> G --> A
+    A --> U
+end
+
+V -. writes embeddings .-> V2
 
 ---
 
@@ -197,3 +202,6 @@ export GROK_API_KEY="your-key"
 ## License
 
 MIT License
+
+—
+Mahmoud Saleh
